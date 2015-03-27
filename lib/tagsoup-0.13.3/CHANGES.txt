@@ -1,0 +1,61 @@
+Changelog for TagSoup
+
+0.13.3
+    Work on GHC 7.9
+0.13.2
+    Remove all package upper bounds
+    Allow QuickCheck-2.6
+0.13.1
+    #562, treat <script> specially as per HTML5
+0.13
+    #616, extend to all HTML5 entities
+    Optimise lookupNamedEntity
+    Replace escapeXMLChar with escapeXML
+    Change all Entity functions to return String, not Int or Char
+0.12.7
+    Allow deepseq-1.3
+    Allow QuickCheck-2.5
+    Support bytestring-0.10 (NFData instances added)
+0.12.6
+    #515, don't crash on malformed characters (use ? instead)
+0.12.5
+    Add optRawTag to Render, to ensure script's don't get escaped
+0.12.4
+    #487, fix the behaviour of ~== for TagComment and others
+0.12.3
+    GHC 7.2 compatibility
+0.12.2
+    Add StringLike instances for Text
+0.12.1
+    Add parseOptionsEntities and improve documentation
+0.12
+    Upgrade to QuickCheck 2.4.*
+    Export toTagRep
+    Make the -download flag off by default
+    Eliminate HTTP dependency
+    Eliminate mtl dependency
+0.11.1
+    Support --flags=-download to eliminate the network dependency
+0.11
+    #326, <a "foo"> is no longer treated as an attribute
+    Add Eq/Ord instances to Tree
+    Don't mark Text.HTML.TagSoup.Tree as preliminary
+    #325, \r should be treated as whitespace
+0.10.1
+    #322, don't change ' to &apos; in render (do what the docs say)
+0.10
+    Improve the cabal file, make the test program off by default
+    Expose Text.HTML.TagSoup.Match again (was hidden accidentally)
+0.9
+    #294, let optEntityData see if there was a ';' (CHANGES API)
+    Numeric/hex entities in attributes were misparsed
+    #149, add escapeHTML function
+0.8
+    Parser now based on HTML5 specification
+    Tag is now parameterised by the string type
+0.6
+    Addition of Text.HTML.TagSoup.Tree and Text.HTML.TagSoup.Render
+    Text.HTML.TagSoup.Parser.Options renamed to ParseOptions
+    Text.HTML.TagSoup.Parser.options renamed to parseOptions
+0.4
+    Changelog started

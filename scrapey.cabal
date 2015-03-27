@@ -23,6 +23,8 @@ executable scrapey
                        , scalpel
                        , text
                        , tagsoup  >= 0.8
+                       , scotty
+                       , transformers
 
   -- hs-source-dirs:      
   default-language:    Haskell2010

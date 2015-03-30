@@ -5,7 +5,6 @@ module Web.Scrapey.App.Main where
 import Text.HTML.Scalpel
 import Data.Text (Text, pack)
 import qualified Text.StringLike()
-import Data.Monoid
 import qualified Web.Scotty as WS
 import Data.Functor()
 import Control.Monad.IO.Class (liftIO)

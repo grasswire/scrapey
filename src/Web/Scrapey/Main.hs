@@ -10,14 +10,18 @@ import Data.Monoid
 import qualified Web.Scotty as WS
 import Data.Functor
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad (liftM)
+import Data.Maybe (fromMaybe)
+import Web.Scrapey.Types
 
 
 main :: IO ()
 main = WS.scotty 3000 $ do
-    WS.get "/pagetitle" $ do
-        url <- WS.param "url"
-        title <- liftIO $ pageTitle
-        WS.html $ mconcat ["<h1>Scotty, ", title, " me up!</h1>"]
+     WS.get "/pagetitle" $ do
+          url <- WS.param "url"
+          title <- liftM (fromMaybe "") $ liftIO $ pageTitle url
+          WS.html $ mconcat ["<h1>Scotty, ", (LT.pack . unpack $  title), " me up!</h1>"]
+
 
 test = do
   t <- tweet "https://twitter.com/LeviNotik/status/581526803631775744"
@@ -69,4 +73,3 @@ tweet url = scrapeURL url getTweet
       handle <- text $ pack "span" @: [hasClass "username"]
       tweetText <- text $ pack "p" @: [hasClass "tweet-text"]
       return $ Tweet handle tweetText
-

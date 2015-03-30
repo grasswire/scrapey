@@ -16,7 +16,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 executable scrapey
-  main-is:             src/Web/Scrapey/Main.hs
+  main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8
@@ -25,6 +25,9 @@ executable scrapey
                        , tagsoup  >= 0.8
                        , scotty
                        , transformers
+                       , aeson
+                       , http-types       >= 0.8.2    && < 0.9
 
-  -- hs-source-dirs:      
+
+  hs-source-dirs: src/
   default-language:    Haskell2010

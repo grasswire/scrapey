@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module Web.Scrapey.App.Main where
 
 import Text.HTML.Scalpel
 import Data.Text (Text, pack, unpack)
@@ -12,20 +12,25 @@ import Data.Functor
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (liftM)
 import Data.Maybe (fromMaybe)
-import Web.Scrapey.Types
+import Web.Scrapey
+import Data.Aeson
+import Control.Applicative (pure)
+import Network.HTTP.Types (Status, StdMethod, status404)
+
 
 
 main :: IO ()
 main = WS.scotty 3000 $ do
      WS.get "/pagetitle" $ do
           url <- WS.param "url"
-          title <- liftM (fromMaybe "") $ liftIO $ pageTitle url
-          WS.html $ mconcat ["<h1>Scotty, ", (LT.pack . unpack $  title), " me up!</h1>"]
+          liftIO (pageTitle url) >>= maybe (WS.status status404) WS.json
 
 
 test = do
   t <- tweet "https://twitter.com/LeviNotik/status/581526803631775744"
   putStrLn (show t)
+
+f = PageTitle "foo" "bar"
 
 type HuntDescription = Text
 type HuntLink = Text
@@ -57,10 +62,13 @@ allHunts = scrapeURL "http://www.producthunt.com" hunts
            link      <-  attr "href" $ pack "a"
            return $ Hunt title desc  (pack "http://www.producthunt.com" <> link)
 
-pageTitle :: String -> IO (Maybe Text)
+pageTitle :: String -> IO (Maybe PageTitle)
 pageTitle url = scrapeURL url title
   where
-    title = text $ pack "title"
+    title =  do
+      t <- text $ pack "title"
+      return $ PageTitle t (pack url)
+
 
 tweet :: String -> IO (Maybe Tweet)
 tweet url = scrapeURL url getTweet

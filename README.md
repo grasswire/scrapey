@@ -1,4 +1,4 @@
-Scrapey — Standalone server/API for scraping content of various types from URLs
+Scrapey — standalone API server to fetch/scrape web content on demand
 ===============================================================================
 
 How to build and run Scrapey
@@ -14,7 +14,7 @@ cabal build
 ./dist/build/scrapey/scrapey "path/to/my/scrapey.cfg"
 ```
 
-### Config 
+### Configuration
 
 Scrapey requires a config file in order to run. Ppass the fully qualified path of a .cfg file as a command line argument. 
 

@@ -1,51 +1,43 @@
-Scrapey 
-=======
+Scrapey — Standalone server/API for scraping content of various types from URLs
+===============================================================================
 
-Standalone server/API for scraping content of various types from urls
-===========================
+How to build and run Scrapey
+----------------------------
 
-Running
--------
+Clone a copy of the Scrapey git repo by running:
 
-cabal build this project and then run the program, providing the full path to your scrapey.cfg confile file. 
+```bash
+git clone https://github.com/grasswire/scrapey
+cabal sandbox init
+cabal install --only-dependencies
+cabal build
+./dist/build/scrapey/scrapey "path/to/my/scrapey.cfg"
+```
 
-`./scrapy path/to/scrapey.cfg`
+### Config 
+
+Scrapey requires a config file in order to run. Ppass the fully qualified path of a .cfg file as a command line argument. 
 
 If you don't plan on using the Twitter API, you can leave this config empty. Otherwise, the config should contain the following:
 
 ```
-twitter_consumer_key = "my consuker key"
+twitter_consumer_key = "my consumer key"
 twitter_consumer_secret  = "my consumer secret"
 twitter_access_secret = "my access secret"
 twitter_access_token = "my access token"
 ```
 
-
-Page titles
------------
+Without these credentials, trying to use the Twitter API will result in a HTTP 500, which is fine if you don't want to use the Twitter functionality.
 
 
-###GET /pagetitle?url={url}
+### API
 
-Response: the content of the `<title>` tag for the specified url
+Some API endpoints are:
 
-```
-curl "localhost:3000/pagetitle?url=https://www.haskell.org/"
+- **GET /pagetitle?url={url}**: Title of a web page's `<title>` tag. Response:`{"url":"https://www.haskell.org/","title":"Haskell Language"}`.
+- **GET /tweet?url={url}**: Retrieves a Twitter Tweet object (see [Twitter Tweets](https://dev.twitter.com/overview/api/tweets)) by extracting the Tweet id from a twitter link (e.g. `https://twitter.com/LeviNotik/status/582581545157959680`). Responds with a 404 if the supplied url is not a link to a Tweet.
 
-{"url":"https://www.haskell.org/","title":"Haskell Language"}
+Questions?
+----------
 
-```
-
-Tweets
-------
-
-###GET /tweet?url={url}
-
-Response: the Tweet json for the tweet from a url in the form of **twitter.com/{screen_name}/status/{tweetId}**
-
-```
-curl "localhost:3000/tweet?url=https://twitter.com/LeviNotik/status/582581545157959680"
-
-{"in_reply_to_status_id":null,"truncated":false,"possibly_sensitive":false,"retweeted_status":null,"withheld_scope":null,"in_reply_to_screen_name":null,"extended_entities":null,"entities":{"urls":[{"expanded_url":"https://github.com/grasswire/scrapey","url":"https://t.co/ZN5TnhviyC","indices":[94,117],"display_url":"github.com/grasswire/scra…"}],"media":....
-
-```
+[@LeviNotik](https://twitter.com/levinotik)

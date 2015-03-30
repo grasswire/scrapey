@@ -27,6 +27,15 @@ executable scrapey
                        , transformers
                        , aeson
                        , http-types       >= 0.8.2    && < 0.9
+                       , bytestring
+                       , authenticate-oauth
+                       , configurator
+                       , twitter-types
+                       , http-conduit
+                       , network-uri
+                       , parsec
+                       , mtl
+                       , errors
 
 
   hs-source-dirs: src/

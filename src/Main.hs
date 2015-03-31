@@ -6,4 +6,4 @@ import Web.Scrapey.APIs
 import System.Environment
 
 main :: IO()
-main =   ScrapeyApp.main
+main = ScrapeyApp.main

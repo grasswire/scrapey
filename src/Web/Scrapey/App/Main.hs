@@ -4,7 +4,7 @@
 module Web.Scrapey.App.Main where
 
 import Text.HTML.Scalpel
-import Data.Text (pack)
+import Data.Text (Text, pack)
 import qualified Text.StringLike()
 import qualified Web.Scotty as WS
 import Data.Functor()
@@ -34,6 +34,9 @@ scottyStart config = WS.scotty 3000 $ do
         WS.get "/tweet" $ do
           url <- WS.param "url"
           liftIO (tweet url config) >>= maybe (WS.status status404) WS.json
+        WS.get "/images" $ do
+          url <- WS.param "url"
+          liftIO (pageImgSources url) >>= maybe (WS.status status404) WS.json
 
 pageTitle :: String -> IO (Maybe PageTitle)
 pageTitle url = scrapeURL url title
@@ -41,6 +44,10 @@ pageTitle url = scrapeURL url title
     title =  do
       t <- text $ pack "title"
       return $ PageTitle t (pack url)
+
+pageImgSources :: String -> IO (Maybe [Text])
+pageImgSources url = scrapeURL url $ attrs (pack "src") $ (pack "img")
+
 
 tweet :: String -> Config -> IO (Maybe Status)
 tweet url config =   case rightMay (P.parse twitterStatusUrl "(source)" $ url) of

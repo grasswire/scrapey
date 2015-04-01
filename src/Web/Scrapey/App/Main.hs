@@ -25,9 +25,10 @@ main = getArgs >>= \ case
       (arg: _) -> load [Required arg] >>= \config -> scottyStart config
       _ -> putStrLn "You must supply the fully qualified path to your scrapey.cfg" >> exitWith (ExitFailure (-1))
 
-
 scottyStart :: Config -> IO ()
 scottyStart config = WS.scotty 3000 $ do
+        WS.get "/healthcheck" $ do
+          WS.text "healthy"
         WS.get "/pagetitle" $ do
           url <- WS.param "url"
           liftIO (pageTitle url) >>= maybe (WS.status status404) WS.json
@@ -48,7 +49,6 @@ pageTitle url = scrapeURL url title
 pageImgSources :: String -> IO (Maybe [Text])
 pageImgSources url = scrapeURL url $ attrs (pack "src") $ (pack "img")
 
-
 tweet :: String -> Config -> IO (Maybe Status)
 tweet url config =   case rightMay (P.parse twitterStatusUrl "(source)" $ url) of
   Just tweetIdStr -> do
@@ -57,9 +57,8 @@ tweet url config =   case rightMay (P.parse twitterStatusUrl "(source)" $ url) o
         lookupTweet tweetIdStr oauth credentials
   _ -> pure Nothing
 
-
 twitterStatusUrl :: P.Parsec String () String
-twitterStatusUrl  =  do
+twitterStatusUrl = do
       P.string "https://twitter.com" <|> P.string "twitter.com" <|> P.string "www.twitter.com"
       P.char '/'
       P.many (P.alphaNum <|> P.char '_')

@@ -7,3 +7,4 @@ import System.Environment
 
 main :: IO()
 main = ScrapeyApp.main
+

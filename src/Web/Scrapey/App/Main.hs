@@ -28,14 +28,18 @@ main = getArgs >>= \ case
 scottyStart :: Config -> IO ()
 scottyStart config = WS.scotty 3000 $ do
         WS.get "/healthcheck" $ do
+          WS.addHeader  "Access-Control-Allow-Origin"  "*"
           WS.text "healthy"
         WS.get "/pagetitle" $ do
+          WS.addHeader  "Access-Control-Allow-Origin"  "*"
           url <- WS.param "url"
           liftIO (pageTitle url) >>= maybe (WS.status status404) WS.json
         WS.get "/tweet" $ do
+          WS.addHeader  "Access-Control-Allow-Origin"  "*"
           url <- WS.param "url"
           liftIO (tweet url config) >>= maybe (WS.status status404) WS.json
         WS.get "/images" $ do
+          WS.addHeader  "Access-Control-Allow-Origin"  "*"
           url <- WS.param "url"
           liftIO (pageImgSources url) >>= maybe (WS.status status404) WS.json
 

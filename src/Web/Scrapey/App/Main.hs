@@ -1,10 +1,10 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Web.Scrapey.App.Main where
 
 import Text.HTML.Scalpel
-import Data.Text (Text, pack)
+import qualified Data.Text as T
 import qualified Text.StringLike()
 import qualified Web.Scotty as WS
 import Data.Functor()
@@ -21,12 +21,10 @@ import System.Environment
 import System.Exit
 
 main :: IO ()
-main = getArgs >>= \ case
-      (arg: _) -> load [Required arg] >>= \config -> scottyStart config
-      _ -> putStrLn "You must supply the fully qualified path to your scrapey.cfg" >> exitWith (ExitFailure (-1))
+main = scottyStart
 
-scottyStart :: Config -> IO ()
-scottyStart config = WS.scotty 3000 $ do
+scottyStart :: IO ()
+scottyStart = WS.scotty 3000 $ do
         WS.get "/healthcheck" $ do
           WS.addHeader  "Access-Control-Allow-Origin"  "*"
           WS.text "healthy"
@@ -34,10 +32,6 @@ scottyStart config = WS.scotty 3000 $ do
           WS.addHeader  "Access-Control-Allow-Origin"  "*"
           url <- WS.param "url"
           liftIO (pageTitle url) >>= maybe (WS.status status404) WS.json
-        WS.get "/tweet" $ do
-          WS.addHeader  "Access-Control-Allow-Origin"  "*"
-          url <- WS.param "url"
-          liftIO (tweet url config) >>= maybe (WS.status status404) WS.json
         WS.get "/images" $ do
           WS.addHeader  "Access-Control-Allow-Origin"  "*"
           url <- WS.param "url"
@@ -47,11 +41,11 @@ pageTitle :: String -> IO (Maybe PageTitle)
 pageTitle url = scrapeURL url title
   where
     title =  do
-      t <- text $ pack "title"
-      return $ PageTitle t (pack url)
+      t <- text ("title" :: String)
+      return $ PageTitle t (T.pack url)
 
-pageImgSources :: String -> IO (Maybe [Text])
-pageImgSources url = scrapeURL url $ attrs (pack "src") $ (pack "img")
+pageImgSources :: String -> IO (Maybe [T.Text])
+pageImgSources url = scrapeURL url $ attrs ("src" :: String) ("img" :: String)
 
 tweet :: String -> Config -> IO (Maybe Status)
 tweet url config =   case rightMay (P.parse twitterStatusUrl "(source)" $ url) of

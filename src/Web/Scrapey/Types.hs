@@ -8,14 +8,29 @@ import Data.Text (Text)
 
 type Title = Text
 type Url = Text
+type PageUrl = Text
+type CanonicalUrl = Text
+type Description = Text
+type ImageUrl = Text
 
 data PageTitle = PageTitle Title Url
   deriving (Show, Eq)
 
 instance ToJSON PageTitle where
      toJSON (PageTitle title url) = object ["title" .= title, "url" .= url]
+   -- {
+   --     "title":"title",
+   --     "url":"original url",
+   --     "pageUrl":"page url",
+   --     "canonicalUrl":"cannonical url",
+   --     "description":"description",
+   --     "images": "img1|img2|...",
+   --     "video":"yes|no",
+   --     "videoIframe":"video iframe if it is video"
+   --  }
 
-
+data LinkPreview = LinkPreview Title Url PageUrl CanonicalUrl Description [ImageUrl]
+  deriving (Show, Eq)
 
 type HuntDescription = Text
 type HuntLink = Text
@@ -32,3 +47,6 @@ data Tweet = Tweet ScreenName TweetText
 
 instance ToJSON Tweet where
      toJSON (Tweet screenName tweetText) = object ["screenName" .= screenName, "tweetText" .= tweetText]
+
+instance ToJSON LinkPreview where
+  toJSON (LinkPreview t u p c d i) = object ["title" .= t, "url" .= u, "pageTitle" .= p, "canonicalUrl" .= c, "description" .= d, "images" .= i]

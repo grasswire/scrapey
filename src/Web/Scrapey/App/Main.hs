@@ -19,6 +19,7 @@ import Data.Configurator.Types
 import Data.Configurator
 import System.Environment
 import System.Exit
+import Network.URI
 
 main :: IO ()
 main = scottyStart
@@ -36,6 +37,11 @@ scottyStart = WS.scotty 3000 $ do
           WS.addHeader  "Access-Control-Allow-Origin"  "*"
           url <- WS.param "url"
           liftIO (pageImgSources url) >>= maybe (WS.status status404) WS.json
+        WS.get "/link_preview" $ do
+          WS.addHeader "Access-Control-Allow-Origin" "*"
+          url <- WS.param "url"
+          liftIO (pagePreview url) >>= maybe (WS.status status404) WS.json
+
 
 pageTitle :: String -> IO (Maybe PageTitle)
 pageTitle url = scrapeURL url title
@@ -43,6 +49,17 @@ pageTitle url = scrapeURL url title
     title =  do
       t <- text ("title" :: String)
       return $ PageTitle t (T.pack url)
+
+pagePreview :: String -> IO (Maybe LinkPreview)
+pagePreview url = scrapeURL url preview
+  where
+    preview = do
+      title <- text ("title" :: String)
+      images <- (attrs ("src" :: String) ("img" :: String))
+      return $ LinkPreview (T.pack title) "" "" "" "" (T.pack <$> images)
+
+getCanonicalUrl :: String -> Maybe String
+getCanonicalUrl url = uriRegName <$> (uriAuthority =<< parseURI url)
 
 pageImgSources :: String -> IO (Maybe [T.Text])
 pageImgSources url = scrapeURL url $ attrs ("src" :: String) ("img" :: String)

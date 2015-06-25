@@ -14,22 +14,6 @@ cabal build
 ./dist/build/scrapey/scrapey "path/to/my/scrapey.cfg"
 ```
 
-### Configuration
-
-Scrapey requires a config file in order to run. Ppass the fully qualified path of a .cfg file as a command line argument. 
-
-If you don't plan on using the Twitter API, you can leave this config empty. Otherwise, the config should contain the following:
-
-```
-twitter_consumer_key = "my consumer key"
-twitter_consumer_secret  = "my consumer secret"
-twitter_access_secret = "my access secret"
-twitter_access_token = "my access token"
-```
-
-Without these credentials, trying to use the Twitter API will result in a HTTP 500, which is fine if you don't want to use the Twitter functionality.
-
-
 ### API
 
 Some API endpoints are:

@@ -11,7 +11,7 @@ git clone https://github.com/grasswire/scrapey
 cabal sandbox init
 cabal install --only-dependencies
 cabal build
-./dist/build/scrapey/scrapey "path/to/my/scrapey.cfg"
+./dist/build/scrapey/scrapey 
 ```
 
 ### API

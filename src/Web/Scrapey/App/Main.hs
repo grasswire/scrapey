@@ -56,7 +56,7 @@ linkPreview url = scrapeURL url preview
       return $ LinkPreview (T.pack title) (T.pack url) (T.pack <$> getCanonicalUrl url)  (T.pack description) (T.pack <$> makeAbsPaths images)
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
-                                Just u -> (\i -> u ++ i) <$> imgs
+                                Just u -> (\i -> if (isAbsoluteURI i) then i else u ++ i) <$> imgs
                                 _ -> imgs
 
 getCanonicalUrl :: String -> Maybe String

@@ -1,6 +1,12 @@
 Scrapey — tiny webservice to get a link preview from a url
 ===============================================================================
 
+Why?
+----
+
+It's sometimes useful to display the preview of a webpage, like Facebook does when you enter a URL in the text area. This webservice lets you retrieve that basic info so you can display the title, description, and images contained within a webpage.
+
+
 How to build and run Scrapey
 ----------------------------
 

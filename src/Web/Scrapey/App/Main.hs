@@ -35,7 +35,7 @@ linkPreview url = scrapeURL url preview
       title <- text ("title" :: String)
       images <- attrs ("src" :: String) ("img" :: String)
       description <- attr ("content" :: String) (("meta" :: String)  @: [("name" :: String) @= ("description" :: String)]) <|> attr ("content" :: String) (("meta" :: String)  @: [("property" :: String) @= ("og:description" :: String)])
-      return $ LinkPreview (T.pack title) (T.pack url) (T.pack <$> getCanonicalUrl url)  (T.pack description) (T.pack <$> makeAbsPaths images)
+      return $ LinkPreview (T.pack title) (T.pack url) (T.pack <$> getCanonicalUrl url)  (T.pack description) (T.pack <$> makeAbsPaths (filter (not . null) images))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
                                 Just u -> (\i -> if (isAbsoluteURI i) then i else u ++ i) <$> imgs

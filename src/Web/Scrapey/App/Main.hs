@@ -7,6 +7,9 @@ import Text.HTML.Scalpel
 import qualified Data.Text as T
 import qualified Text.StringLike()
 import qualified Web.Scotty as WS
+import qualified Data.ByteString as B
+import qualified Data.Text.Encoding as E
+import Data.ByteString (ByteString)
 import Data.Functor()
 import Control.Monad.IO.Class (liftIO)
 import Web.Scrapey
@@ -31,11 +34,26 @@ scottyStart = WS.scotty 3000 $ do
 linkPreview :: String -> IO (Maybe LinkPreview)
 linkPreview url = scrapeURL url preview
   where
+    b2t = E.decodeUtf8
+    s2t = T.pack
+    b2s = T.unpack . b2t
+    stext :: String -> Scraper ByteString ByteString
+    stext = text
+    sattrs :: String -> String -> Scraper ByteString [ByteString]
+    sattrs = attrs
+    sattr :: String -> Selector -> Scraper ByteString ByteString
+    sattr = attr
+    (@@:) :: String -> [AttributePredicate] -> Selector
+    (@@:) = (@:)
+    (@@=) :: String -> String -> AttributePredicate
+    (@@=) = (@=)
+    preview :: Scraper ByteString LinkPreview
     preview = do
-      title <- text ("title" :: String)
-      images <- attrs ("src" :: String) ("img" :: String)
-      description <- attr ("content" :: String) (("meta" :: String)  @: [("name" :: String) @= ("description" :: String)]) <|> attr ("content" :: String) (("meta" :: String)  @: [("property" :: String) @= ("og:description" :: String)])
-      return $ LinkPreview (T.pack title) (T.pack url) (T.pack <$> getCanonicalUrl url)  (T.pack description) (T.pack <$> makeAbsPaths (filter (not . null) images))
+      title <- stext "title"
+      images <- sattrs "src" "img"
+      description <-  sattr "content" ("meta" @@: ["name" @@= "description"])
+                  <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])
+      return $ LinkPreview (b2t title) (s2t url) (s2t <$> getCanonicalUrl url)  (b2t description) (s2t <$> makeAbsPaths (filter (not . null) (map b2s images)))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
                                 Just u -> (\i -> if (isAbsoluteURI i) then i else u ++ i) <$> imgs

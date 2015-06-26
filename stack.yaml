@@ -1,0 +1,6 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+- scalpel-0.2.1
+resolver: nightly-2015-06-24

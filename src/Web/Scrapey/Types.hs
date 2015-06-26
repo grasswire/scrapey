@@ -8,7 +8,6 @@ import Data.Text (Text)
 
 type Title = Text
 type Url = Text
-type PageUrl = Text
 type CanonicalUrl = Text
 type Description = Text
 type ImageUrl = Text
@@ -29,7 +28,7 @@ instance ToJSON PageTitle where
    --     "videoIframe":"video iframe if it is video"
    --  }
 
-data LinkPreview = LinkPreview Title Url PageUrl CanonicalUrl Description [ImageUrl]
+data LinkPreview = LinkPreview Title Url (Maybe CanonicalUrl) Description [ImageUrl]
   deriving (Show, Eq)
 
 type HuntDescription = Text
@@ -49,4 +48,4 @@ instance ToJSON Tweet where
      toJSON (Tweet screenName tweetText) = object ["screenName" .= screenName, "tweetText" .= tweetText]
 
 instance ToJSON LinkPreview where
-  toJSON (LinkPreview t u p c d i) = object ["title" .= t, "url" .= u, "pageTitle" .= p, "canonicalUrl" .= c, "description" .= d, "images" .= i]
+  toJSON (LinkPreview t u c d i) = object ["title" .= t, "url" .= u,  "canonicalUrl" .= c, "description" .= d, "images" .= i]

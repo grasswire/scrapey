@@ -18,7 +18,6 @@ import Control.Applicative
 import Control.Error.Safe
 import Network.URI
 import Data.Aeson
-import Data.Monoid ((<>))
 
 main :: IO ()
 main = scottyStart

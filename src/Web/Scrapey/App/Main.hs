@@ -13,10 +13,12 @@ import Data.ByteString (ByteString)
 import Data.Functor()
 import Control.Monad.IO.Class (liftIO)
 import Web.Scrapey
-import Network.HTTP.Types (status404)
+import Network.HTTP.Types (status404, status400)
 import Control.Applicative
 import Control.Error.Safe
 import Network.URI
+import Data.Aeson
+import Data.Monoid ((<>))
 
 main :: IO ()
 main = scottyStart
@@ -29,7 +31,9 @@ scottyStart = WS.scotty 3000 $ do
         WS.get "/link_preview" $ do
           WS.addHeader "Access-Control-Allow-Origin" "*"
           url <- WS.param "url"
-          liftIO (linkPreview url) >>= maybe (WS.status status404) WS.json
+          if (not . isURI) url
+             then WS.status status400 >> WS.json (object [("error" , String (T.pack $ url ++ " is not a valid url"))])
+             else liftIO (linkPreview url) >>= maybe (WS.status status404) WS.json
 
 linkPreview :: String -> IO (Maybe LinkPreview)
 linkPreview url = scrapeURL url preview
@@ -56,7 +60,7 @@ linkPreview url = scrapeURL url preview
       return $ LinkPreview (b2t title) (s2t url) (s2t <$> getCanonicalUrl url)  (b2t description) (s2t <$> makeAbsPaths (filter (not . null) (map b2s images)))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
-                                Just u -> (\i -> if (isAbsoluteURI i) then i else u ++ i) <$> imgs
+                                Just u -> (\i -> if isAbsoluteURI i then i else u ++ i) <$> imgs
                                 _ -> imgs
 
 getCanonicalUrl :: String -> Maybe String

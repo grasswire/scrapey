@@ -30,12 +30,11 @@ scottyStart = WS.scotty 3000 $ do
         WS.get "/link_preview" $ do
           WS.addHeader "Access-Control-Allow-Origin" "*"
           url <- WS.param "url"
-          if (not . isURI) url
-             then WS.status status400 >> WS.json (object [("error" , String (T.pack $ url ++ " is not a valid url"))])
-             else liftIO (linkPreview url) >>= maybe (WS.status status404) WS.json
+          maybe (WS.status status400 >> WS.json (object [("error" , String (T.pack $ url ++ " is not a valid url"))])) (\uri -> liftIO (linkPreview uri) >>= maybe (WS.status status404) WS.json) (parseURI url)
 
-linkPreview :: String -> IO (Maybe LinkPreview)
-linkPreview url = scrapeURL url preview
+
+linkPreview :: URI -> IO (Maybe LinkPreview)
+linkPreview url = scrapeURL (show url) preview
   where
     b2t = E.decodeUtf8
     s2t = T.pack
@@ -56,11 +55,12 @@ linkPreview url = scrapeURL url preview
       images <- sattrs "src" "img"
       description <-  sattr "content" ("meta" @@: ["name" @@= "description"])
                   <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])
-      return $ LinkPreview (b2t title) (s2t url) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> makeAbsPaths (filter (not . null) (map b2s images)))
+      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> makeAbsPaths (filter (not . null) (map b2s images)))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
-                                Just u -> (\i -> if isAbsoluteURI i then i else u ++ i) <$> imgs
+                                Just u -> (\i -> if isAbsoluteURI i then prependScheme i else prependScheme (u ++ i)) <$> imgs
                                 _ -> imgs
+          prependScheme = (++) (uriScheme url ++ "//")
 
-getCanonicalUrl :: String -> Maybe String
-getCanonicalUrl url = uriRegName <$> (uriAuthority =<< parseURI url)
+getCanonicalUrl :: URI -> Maybe String
+getCanonicalUrl url = uriRegName <$> uriAuthority url

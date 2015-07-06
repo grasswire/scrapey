@@ -30,8 +30,10 @@ scottyStart = WS.scotty 3000 $ do
         WS.get "/link_preview" $ do
           WS.addHeader "Access-Control-Allow-Origin" "*"
           url <- WS.param "url"
-          maybe (WS.status status400 >> WS.json (object [("error" , String (T.pack $ url ++ " is not a valid url"))])) (\uri -> liftIO (linkPreview uri) >>= maybe (WS.status status404) WS.json) (parseURI url)
-
+          case parseURI url of
+            Just uri -> liftIO (linkPreview uri) >>= maybe (WS.status status404) WS.json
+            _ -> WS.status status400 >> WS.json (object [("error" , String (T.pack $ url ++ " is not a valid url"))])
+          
 
 linkPreview :: URI -> IO (Maybe LinkPreview)
 linkPreview url = scrapeURL (show url) preview

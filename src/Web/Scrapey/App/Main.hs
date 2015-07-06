@@ -58,7 +58,7 @@ linkPreview url = scrapeURL (show url) preview
       return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> makeAbsPaths (filter (not . null) (map b2s images)))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
-                                Just u -> (\i -> if isAbsoluteURI i then prependScheme i else prependScheme (u ++ i)) <$> imgs
+                                Just u -> (\i -> if isAbsoluteURI i then i else prependScheme (u ++ i)) <$> imgs
                                 _ -> imgs
           prependScheme = (++) (uriScheme url ++ "//")
 

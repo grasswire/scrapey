@@ -18,6 +18,8 @@ import Control.Applicative
 import Control.Error.Safe
 import Network.URI
 import Data.Aeson
+import Data.List as DL
+import Data.Maybe (isJust)
 
 main :: IO ()
 main = scottyStart
@@ -57,13 +59,21 @@ linkPreview url = scrapeURL (show url) preview
       images <- sattrs "src" "img"
       description <-  sattr "content" ("meta" @@: ["name" @@= "description"])
                   <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])
-      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> makeAbsPaths (filter (not . null) (map b2s images)))
+      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> (filter (not . isDataScheme) $ makeAbsPaths (filter (not . null) (map b2s images))))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
-                                Just u -> (\i -> uriWithScheme u i) <$> imgs
+                                Just u -> uriWithScheme u <$> imgs
                                 _      -> imgs
+          
           uriWithScheme _ i | isAbsoluteURI i = i
-          uriWithScheme u i = uriScheme url ++ "//" ++ i
+          uriWithScheme u i@('/' : '/' : _)   = (uriScheme url ++ i)
+          uriWithScheme u i                   = uriScheme url ++ "//" ++ u ++ i
+          
+          isDataScheme uri =  case parseURI uri of 
+                                Nothing -> True
+                                Just u  -> isJust $ DL.stripPrefix "data" (uriScheme u)
+
 
 getCanonicalUrl :: URI -> Maybe String
 getCanonicalUrl url = uriRegName <$> uriAuthority url
+

@@ -69,9 +69,7 @@ linkPreview url = scrapeURL (show url) preview
           uriWithScheme u i@('/' : '/' : _)   = (uriScheme url ++ i)
           uriWithScheme u i                   = uriScheme url ++ "//" ++ u ++ i
           
-          isDataScheme uri =  case parseURI uri of 
-                                Nothing -> True
-                                Just u  -> isJust $ DL.stripPrefix "data" (uriScheme u)
+          isDataScheme uri =  maybe True (isJust . DL.stripPrefix "data" . uriScheme) (parseURI uri)
 
 
 getCanonicalUrl :: URI -> Maybe String

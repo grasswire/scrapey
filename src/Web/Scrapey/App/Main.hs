@@ -35,7 +35,7 @@ scottyStart = WS.scotty 3000 $ do
           case parseURI url of
             Just uri -> liftIO (linkPreview uri) >>= maybe (WS.status status404) WS.json
             _ -> WS.status status400 >> WS.json (object [("error" , String (T.pack $ url ++ " is not a valid url"))])
-          
+
 
 linkPreview :: URI -> IO (Maybe LinkPreview)
 linkPreview url = scrapeURL (show url) preview
@@ -56,22 +56,20 @@ linkPreview url = scrapeURL (show url) preview
     preview :: Scraper ByteString LinkPreview
     preview = do
       title <- stext "title"
-      images <- sattrs "src" "img"
+      images <- sattr  "content" ("meta" @@: ["property" @@= "og:image"])
       description <-  sattr "content" ("meta" @@: ["name" @@= "description"])
                   <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])
-      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> (filter (not . isDataScheme) $ makeAbsPaths (filter (not . null) (map b2s images))))
+      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> (filter (not . isDataScheme) $ makeAbsPaths (filter (not . null) (map b2s [images]))))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
                                 Just u -> uriWithScheme u <$> imgs
                                 _      -> imgs
-          
-          uriWithScheme _ i | isAbsoluteURI i = i
-          uriWithScheme u i@('/' : '/' : _)   = (uriScheme url ++ i)
-          uriWithScheme u i                   = uriScheme url ++ "//" ++ u ++ i
-          
-          isDataScheme uri =  maybe True (isJust . DL.stripPrefix "data" . uriScheme) (parseURI uri)
 
+          uriWithScheme _ i | isAbsoluteURI i = i
+          uriWithScheme u i@('/' : '/' : _)   = uriScheme url ++ i
+          uriWithScheme u i                   = uriScheme url ++ "//" ++ u ++ i
+
+          isDataScheme uri =  maybe True (isJust . DL.stripPrefix "data" . uriScheme) (parseURI uri)
 
 getCanonicalUrl :: URI -> Maybe String
 getCanonicalUrl url = uriRegName <$> uriAuthority url
-

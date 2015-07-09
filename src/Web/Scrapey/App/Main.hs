@@ -20,12 +20,14 @@ import Network.URI
 import Data.Aeson
 import Data.List as DL
 import Data.Maybe (isJust)
+import Network.Wai.Middleware.RequestLogger
 
 main :: IO ()
-main = scottyStart
+main =  scottyStart
 
 scottyStart :: IO ()
 scottyStart = WS.scotty 3000 $ do
+        WS.middleware logStdout
         WS.get "/healthcheck" $ do
           WS.addHeader  "Access-Control-Allow-Origin"  "*"
           WS.text "healthy"

@@ -58,10 +58,10 @@ linkPreview url = scrapeURL (show url) preview
     preview :: Scraper ByteString LinkPreview
     preview = do
       title <- stext "title"
-      images <- sattr  "content" ("meta" @@: ["property" @@= "og:image"])
+      images <- sattrs  "src" "img"
       description <-  sattr "content" ("meta" @@: ["name" @@= "description"])
                   <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])
-      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> (filter (not . isDataScheme) $ makeAbsPaths (filter (not . null) (map b2s [images]))))
+      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> (filter (not . isDataScheme) $ makeAbsPaths (filter (not . null) (map b2s images))))
         where
           makeAbsPaths imgs = case getCanonicalUrl url of
                                 Just u -> uriWithScheme u <$> imgs

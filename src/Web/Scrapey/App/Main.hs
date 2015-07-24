@@ -59,9 +59,9 @@ linkPreview url = scrapeURL (show url) preview
     preview = do
       title <- stext "title"
       image <- Just <$> (sattr  "content" ("meta" @@: ["property" @@= "og:image"])) <|> return Nothing
-      description <-  sattr "content" ("meta" @@: ["name" @@= "description"])
-                  <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])
-      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t description) (s2t <$> makeAbsPaths <$> (b2s <$> image))
+      description <- Just <$> (sattr "content" ("meta" @@: ["name" @@= "description"])
+                  <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])) <|> return Nothing
+      return $ LinkPreview (b2t title) (s2t (show url)) (s2t <$> getCanonicalUrl url) (b2t <$> description) (s2t <$> makeAbsPaths <$> (b2s <$> image))
         where
           makeAbsPaths img = case getCanonicalUrl url of
                                 Just u -> uriWithScheme u img

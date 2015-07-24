@@ -12,7 +12,7 @@ type CanonicalUrl = Text
 type Description = Text
 type ImageUrl = Text
 
-data LinkPreview = LinkPreview Title Url (Maybe CanonicalUrl) Description (Maybe ImageUrl)
+data LinkPreview = LinkPreview Title Url (Maybe CanonicalUrl) (Maybe Description) (Maybe ImageUrl)
   deriving (Show, Eq)
 
 instance ToJSON LinkPreview where

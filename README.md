@@ -24,16 +24,13 @@ cabal run
 - **GET /link_preview?url={url}**: retrieve a page's title, a brief description of its content, and the images contained therein. 
 
 ```
-$ curl "http://localhost:3000/link_preview?url=http://google.com"
+$ curl "http://localhost:3000/link_preview?url=https://twitter.com/BarackObama/status/266031293945503744"
 {
-  "images": [
-    "google.com/images/icons/product/chrome-48.png",
-    "google.com/images/srpr/logo9w.png"
-  ],
-  "url": "http://google.com",
-  "canonicalUrl": "google.com",
-  "title": "Google",
-  "description": "Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking for."
+   "image":"https://pbs.twimg.com/media/A7EiDWcCYAAZT1D.jpg:large",
+   "url":"https://twitter.com/BarackObama/status/266031293945503744",
+   "canonicalUrl":"twitter.com",
+   "title":"Barack Obama on Twitter",
+   "description":"“Four more years.”"
 }
 ```
 

@@ -22,6 +22,7 @@ import Data.List as DL
 import Data.Maybe (isJust)
 import Network.Wai.Middleware.RequestLogger
 import Control.Monad (mfilter)
+import Network.Curl
 
 main :: IO ()
 main =  scottyStart
@@ -41,7 +42,7 @@ scottyStart = WS.scotty 3000 $ do
 
 
 linkPreview :: URI -> IO (Maybe LinkPreview)
-linkPreview url = scrapeURL (show url) preview
+linkPreview url = scrapeURLWithOpts [CurlFollowLocation True, CurlUserAgent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36"] (show url) preview
   where
     b2t = E.decodeUtf8
     s2t = T.pack
@@ -58,7 +59,7 @@ linkPreview url = scrapeURL (show url) preview
     (@@=) = (@=)
     preview :: Scraper ByteString LinkPreview
     preview = do
-      title <- stext "title"
+      title <- sattr  "content" ("meta" @@: ["property" @@= "og:title"]) <|>  stext "title" 
       image <- Just <$> sattr  "content" ("meta" @@: ["property" @@= "og:image"]) <|> return Nothing
       description <- Just <$> (sattr "content" ("meta" @@: ["name" @@= "description"])
                   <|> sattr "content" ("meta" @@: ["property" @@= "og:description"])) <|> return Nothing
